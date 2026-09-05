@@ -2,21 +2,32 @@
   "name": "@thewoldaa/tool-box",
   "version": "0.1.0",
   "description": "Instant agentic AI CLI — wraps opencode with free model fallback + curated Hermes skills. No API key required.",
-  "keywords": ["ai", "agent", "cli", "opencode", "agentic", "thewoldaa", "craftkal", "hermes", "llm", "toolbox"],
+  "keywords": [
+    "ai",
+    "agent",
+    "cli",
+    "opencode",
+    "agentic",
+    "thewoldaa",
+    "craftkal",
+    "hermes",
+    "llm",
+    "toolbox"
+  ],
   "license": "MIT",
   "author": "thewoldaa",
   "repository": {
     "type": "git",
-    "url": "https://github.com/thewoldaa/tool-box.git"
+    "url": "git+https://github.com/thewoldaa/tool-box.git"
   },
   "homepage": "https://github.com/thewoldaa/tool-box#readme",
   "bugs": "https://github.com/thewoldaa/tool-box/issues",
   "bin": {
-    "thewoldaa-tool": "./bin/thewoldaa-tool.js",
-    "thewoldaa-toolbox": "./bin/thewoldaa-tool.js",
-    "tool-box": "./bin/thewoldaa-tool.js",
-    "craftkal-tool": "./bin/thewoldaa-tool.js",
-    "craftkal-toolbox": "./bin/thewoldaa-tool.js"
+    "thewoldaa-tool": "bin/thewoldaa-tool.js",
+    "thewoldaa-toolbox": "bin/thewoldaa-tool.js",
+    "tool-box": "bin/thewoldaa-tool.js",
+    "craftkal-tool": "bin/thewoldaa-tool.js",
+    "craftkal-toolbox": "bin/thewoldaa-tool.js"
   },
   "files": [
     "bin/",
