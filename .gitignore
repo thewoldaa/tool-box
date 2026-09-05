@@ -1,0 +1,11 @@
+node_modules/
+.npm/
+*.log
+.DS_Store
+Thumbs.db
+.env
+.9router/
+.opencode/
+dist/
+.next/
+coverage/
