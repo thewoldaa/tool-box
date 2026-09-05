@@ -50,11 +50,18 @@ function printVersion() {
 function isHelp(a) { return a === "--help" || a === "-h" || a === "help"; }
 function isVersion(a) { return a === "--version" || a === "-v" || a === "version"; }
 
+function getOpencodeBin() {
+  if (process.platform === "win32") {
+    const direct = path.join(os.homedir(), "AppData", "Roaming", "npm", "node_modules", "opencode-ai", "bin", "opencode.exe");
+    if (fs.existsSync(direct)) return direct;
+  }
+  return process.platform === "win32" ? "opencode.cmd" : "opencode";
+}
 function checkOpencode() {
-  const isWin = process.platform === "win32";
-  const r = spawnSync(isWin ? "opencode.cmd" : "opencode", ["--version"], { shell: false, timeout: 4000, encoding: "utf8" });
+  const bin = getOpencodeBin();
+  const useShell = bin.endsWith(".cmd");
+  const r = spawnSync(bin, ["--version"], { shell: useShell, timeout: 4000, encoding: "utf8" });
   if (r.error || r.status !== 0) {
-    // fallback with shell for npx shim
     const r2 = spawnSync("opencode", ["--version"], { shell: true, timeout: 4000, encoding: "utf8" });
     if (r2.error || r2.status !== 0) return null;
     return (r2.stdout || r2.stderr || "").trim();
@@ -74,17 +81,12 @@ function probeNineRouter() {
 }
 
 function opencodeSpawn(args, opts = {}) {
-  // inject TOOLBOX config dir via OPENCODE_CONFIG env if supported, else rely on opencode.json discovery
-  // opencode reads ~/.config/opencode — we also write ~/.config/tool-box/opencode.json and pass --config if available
-  // For now, just spawn opencode directly; it will use our generated config if we symlink or user sets OPENCODE_CONFIG
-  // We handle config path manually: if tool-box config exists, set env
   const env = { ...process.env };
   const tbCfg = getOpencodeConfigPath();
-  if (fs.existsSync(tbCfg)) {
-    // opencode respects OPENCODE_CONFIG or XDG; we set custom via env for transparency
-    env.TOOLBOX_CONFIG = tbCfg;
-  }
-  const child = spawn("opencode", args, { stdio: "inherit", shell: process.platform === "win32", env, cwd: opts.cwd || process.cwd() });
+  if (fs.existsSync(tbCfg)) env.TOOLBOX_CONFIG = tbCfg;
+  const bin = getOpencodeBin();
+  const useShell = bin.endsWith(".cmd");
+  const child = spawn(bin, args, { stdio: "inherit", shell: useShell, env, cwd: opts.cwd || process.cwd() });
   return child;
 }
 
@@ -173,8 +175,8 @@ async function cmdModels() {
   FREE_FALLBACK_CHAIN.forEach((m, i) => console.log(` ${i === 0 ? "►" : " "} ${String(i + 1).padStart(2)}. ${m}${i === 0 ? "  (primary)" : ""}`));
   console.log(`\n detection: 9router at 127.0.0.1:20128 will be probed at runtime`);
   console.log(` override: TOOLBOX_MODEL or OPENCODE_MODEL env\n`);
-  // also try opencode models if available
-  const r = spawnSync(process.platform === "win32" ? "opencode.cmd" : "opencode", ["models"], { shell: false, timeout: 6000, encoding: "utf8" });
+  const binM = getOpencodeBin();
+  const r = spawnSync(binM, ["models"], { shell: binM.endsWith(".cmd"), timeout: 6000, encoding: "utf8" });
   if (r.status === 0 && r.stdout) {
     console.log("[opencode models]\n" + r.stdout.slice(0, 2000));
   } else {
@@ -254,7 +256,8 @@ async function main() {
   }
   if (cmd === "upgrade") {
     console.log("[tool-box] upgrading opencode...");
-    const r = spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", ["i", "-g", "opencode-ai@latest"], { stdio: "inherit", shell: false });
+    const npmBin = process.platform === "win32" ? "npm.cmd" : "npm";
+    const r = spawnSync(npmBin, ["i", "-g", "opencode-ai@latest"], { stdio: "inherit", shell: npmBin.endsWith(".cmd") });
     if (r.error) {
       const r2 = spawnSync("npm", ["i", "-g", "opencode-ai@latest"], { stdio: "inherit", shell: true });
       process.exit(r2.status ?? 0);

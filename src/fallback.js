@@ -21,7 +21,16 @@ function isRetryable(stderr) {
 }
 
 function findOpencodeBin() {
-  // prefer global opencode, fallback to npx
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+  // Try direct exe to avoid shell:true DEP0190 and EINVAL on Windows
+  if (process.platform === "win32") {
+    const direct = path.join(os.homedir(), "AppData", "Roaming", "npm", "node_modules", "opencode-ai", "bin", "opencode.exe");
+    if (fs.existsSync(direct)) return direct;
+    const alt = path.join(process.env.APPDATA || "", "npm", "node_modules", "opencode-ai", "bin", "opencode.exe");
+    if (fs.existsSync(alt)) return alt;
+  }
   return "opencode";
 }
 
@@ -39,10 +48,7 @@ function runWithFallback({ prompt, modelChain, extraArgs = [], cwd = process.cwd
       if (prompt) args.push(prompt);
 
       const opencode = findOpencodeBin();
-      const isWin = process.platform === "win32";
-      // use .cmd on Windows without shell to avoid DEP0190
-      const bin = isWin ? "opencode.cmd" : opencode;
-      const child = spawn(bin, args, { cwd, stdio: ["inherit", "pipe", "pipe"], shell: false, windowsVerbatimArguments: false });
+      const child = spawn(opencode, args, { cwd, stdio: ["inherit", "pipe", "pipe"], shell: false });
 
       let stdout = "";
       let stderr = "";
