@@ -39,7 +39,10 @@ function runWithFallback({ prompt, modelChain, extraArgs = [], cwd = process.cwd
       if (prompt) args.push(prompt);
 
       const opencode = findOpencodeBin();
-      const child = spawn(opencode, args, { cwd, stdio: ["inherit", "pipe", "pipe"], shell: process.platform === "win32" });
+      const isWin = process.platform === "win32";
+      // use .cmd on Windows without shell to avoid DEP0190
+      const bin = isWin ? "opencode.cmd" : opencode;
+      const child = spawn(bin, args, { cwd, stdio: ["inherit", "pipe", "pipe"], shell: false, windowsVerbatimArguments: false });
 
       let stdout = "";
       let stderr = "";
@@ -86,6 +89,24 @@ function runWithFallback({ prompt, modelChain, extraArgs = [], cwd = process.cwd
 
       child.on("error", (err) => {
         clearTimeout(timer);
+        // fallback to shell:true if direct spawn fails (npx shim)
+        if (err.code === "ENOENT" && idx <= chain.length) {
+          const fallback = spawn(opencode, args, { cwd, stdio: ["inherit", "pipe", "pipe"], shell: true });
+          let fbStderr = "";
+          fallback.stderr.on("data", (d) => { fbStderr += d.toString(); process.stderr.write(d); });
+          fallback.stdout.on("data", (d) => process.stdout.write(d));
+          fallback.on("close", (code) => {
+            clearTimeout(timer);
+            if (code === 0) return resolve({ model, code, stdout, stderr: fbStderr });
+            if (idx < chain.length) {
+              console.error(`\n[tool-box] ${model} failed, falling back to ${chain[idx]}...`);
+              return tryNext();
+            }
+            reject(new Error(`Model ${model} failed: ${fbStderr.slice(0, 600)}`));
+          });
+          fallback.on("error", (e2) => reject(e2));
+          return;
+        }
         if (idx < chain.length) {
           console.error(`[tool-box] spawn error ${model}: ${err.message}, trying fallback`);
           return tryNext();

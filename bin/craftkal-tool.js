@@ -50,8 +50,14 @@ function isHelp(a) { return a === "--help" || a === "-h" || a === "help"; }
 function isVersion(a) { return a === "--version" || a === "-v" || a === "version"; }
 
 function checkOpencode() {
-  const r = spawnSync("opencode", ["--version"], { shell: true, timeout: 4000, encoding: "utf8" });
-  if (r.error || r.status !== 0) return null;
+  const isWin = process.platform === "win32";
+  const r = spawnSync(isWin ? "opencode.cmd" : "opencode", ["--version"], { shell: false, timeout: 4000, encoding: "utf8" });
+  if (r.error || r.status !== 0) {
+    // fallback with shell for npx shim
+    const r2 = spawnSync("opencode", ["--version"], { shell: true, timeout: 4000, encoding: "utf8" });
+    if (r2.error || r2.status !== 0) return null;
+    return (r2.stdout || r2.stderr || "").trim();
+  }
   return (r.stdout || r.stderr || "").trim();
 }
 
@@ -167,9 +173,12 @@ async function cmdModels() {
   console.log(`\n detection: 9router at 127.0.0.1:20128 will be probed at runtime`);
   console.log(` override: TOOLBOX_MODEL or OPENCODE_MODEL env\n`);
   // also try opencode models if available
-  const r = spawnSync("opencode", ["models"], { shell: true, timeout: 6000, encoding: "utf8" });
+  const r = spawnSync(process.platform === "win32" ? "opencode.cmd" : "opencode", ["models"], { shell: false, timeout: 6000, encoding: "utf8" });
   if (r.status === 0 && r.stdout) {
     console.log("[opencode models]\n" + r.stdout.slice(0, 2000));
+  } else {
+    const r2 = spawnSync("opencode", ["models"], { shell: true, timeout: 6000, encoding: "utf8" });
+    if (r2.status === 0 && r2.stdout) console.log("[opencode models]\n" + r2.stdout.slice(0, 2000));
   }
 }
 
@@ -244,7 +253,11 @@ async function main() {
   }
   if (cmd === "upgrade") {
     console.log("[tool-box] upgrading opencode...");
-    const r = spawnSync("npm", ["i", "-g", "opencode-ai@latest"], { stdio: "inherit", shell: true });
+    const r = spawnSync(process.platform === "win32" ? "npm.cmd" : "npm", ["i", "-g", "opencode-ai@latest"], { stdio: "inherit", shell: false });
+    if (r.error) {
+      const r2 = spawnSync("npm", ["i", "-g", "opencode-ai@latest"], { stdio: "inherit", shell: true });
+      process.exit(r2.status ?? 0);
+    }
     process.exit(r.status ?? 0);
   }
 
