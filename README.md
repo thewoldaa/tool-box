@@ -1,15 +1,15 @@
-# @craftkal/tool-box
+# @thewoldaa/tool-box
 
 Instant agentic AI CLI — wraps **opencode** with free model fallback + curated Hermes skills. No API key required. Startup instan, fallback otomatis.
 
-> `craftkal-tool` — panggil langsung dari terminal, seperti `opencode` tapi dengan fallback chain + skills.
+> `thewoldaa-tool` — panggil langsung dari terminal, seperti `opencode` tapi dengan fallback chain + skills. Alias `craftkal-tool` tetap support.
 
 ## Install
 
 ```bash
-npm i -g @craftkal/tool-box
+npm i -g @thewoldaa/tool-box
 # atau via opencode plugin
-opencode plugin add @craftkal/tool-box
+opencode plugin add @thewoldaa/tool-box
 ```
 
 Requires `opencode` (auto-checked on postinstall):
@@ -21,16 +21,19 @@ npm i -g opencode-ai@latest
 ## Usage
 
 ```bash
-craftkal-tool "buat landing page modern dengan tailwind"
-craftkal-tool run "refactor src/auth.ts" -- --agent toolbox
+thewoldaa-tool "buat landing page modern dengan tailwind"
+thewoldaa-tool run "refactor src/auth.ts" -- --agent toolbox
 
-craftkal-tool serve          # TUI instant
-craftkal-tool web            # web UI
-craftkal-tool models         # list fallback chain
-craftkal-tool doctor         # diagnose opencode + 9router + skills
-craftkal-tool skills list
-craftkal-tool skills sync --force
-craftkal-tool config show
+thewoldaa-tool serve          # TUI instant
+thewoldaa-tool web            # web UI
+thewoldaa-tool models         # list fallback chain
+thewoldaa-tool doctor         # diagnose opencode + 9router + skills
+thewoldaa-tool skills list
+thewoldaa-tool skills sync --force
+thewoldaa-tool config show
+
+# alias lama tetap jalan
+craftkal-tool "hello"
 ```
 
 **Fallback chain (free, no key):**
@@ -48,18 +51,18 @@ Jika `9Router` alive di `127.0.0.1:20128`, otomatis reuse provider `9router` (se
 Override primary:
 
 ```bash
-TOOLBOX_MODEL=opencode/big-pickle craftkal-tool "hello"
+TOOLBOX_MODEL=opencode/big-pickle thewoldaa-tool "hello"
 ```
 
-## Skills (25-30 curated)
+## Skills (31 curated)
 
 Disync dari Hermes (`C:\Users\craftkal\AppData\Local\hermes\skills`) + `.agents/skills` ke `~/.config/tool-box/skills`:
 
 `code-review-and-quality`, `security-and-hardening`, `performance-optimization`, `frontend-ui-engineering`, `systematic-debugging`, `test-driven-development`, `plan`, `codebase-inspection`, `github-pr-workflow`, `docx`, `pdf`, `xlsx`, `notion`, `agent-browser`, `ponytail`, `design-taste-frontend`, `stitch-design-taste`, `desktop-app-design` …
 
 ```bash
-craftkal-tool skills sync
-craftkal-tool skills list
+thewoldaa-tool skills sync
+thewoldaa-tool skills list
 ```
 
 ## Config
@@ -80,13 +83,13 @@ craftkal-tool skills list
 Reset:
 
 ```bash
-craftkal-tool config reset
-craftkal-tool config path
+thewoldaa-tool config reset
+thewoldaa-tool config path
 ```
 
 ## How it wraps opencode (packet)
 
-Mirip 9Router: thin launcher `bin/craftkal-tool.js` → probe `127.0.0.1:20128` → generate config → `spawn("opencode", ["run", "-m", model, prompt])` → pada `429/overloaded/503` retry next model di `src/fallback.js` (stall timeout 120s, retryable regex). Tidak perlu Next server — cukup fallback chain di CLI.
+Mirip 9Router: thin launcher `bin/thewoldaa-tool.js` → probe `127.0.0.1:20128` → generate config → `spawn("opencode", ["run", "-m", model, prompt])` → pada `429/overloaded/503` retry next model di `src/fallback.js` (stall timeout 120s, retryable regex). Tidak perlu Next server — cukup fallback chain di CLI.
 
 - `src/config.js` — build `opencode.json` dengan fallback_models ala `oh-my-openagent.json`
 - `src/fallback.js` — spawn + retry (ala `318.js` provider engine)
@@ -99,7 +102,7 @@ MIT — derivative of `opencode-ai` (MIT). See `LICENSE`. Upstream: `sst/opencod
 ## Publish
 
 ```bash
-npm login
+npm login # login sebagai thewoldaa (atau craftkal — keduanya owner)
 npm publish --access public
-gh repo create craftkal/tool-box --public --source=. --remote=origin --push
+gh repo view thewoldaa/tool-box --web
 ```

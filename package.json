@@ -1,20 +1,22 @@
 {
-  "name": "@craftkal/tool-box",
+  "name": "@thewoldaa/tool-box",
   "version": "0.1.0",
   "description": "Instant agentic AI CLI — wraps opencode with free model fallback + curated Hermes skills. No API key required.",
-  "keywords": ["ai", "agent", "cli", "opencode", "agentic", "craftkal", "hermes", "llm", "toolbox"],
+  "keywords": ["ai", "agent", "cli", "opencode", "agentic", "thewoldaa", "craftkal", "hermes", "llm", "toolbox"],
   "license": "MIT",
-  "author": "craftkal",
+  "author": "thewoldaa",
   "repository": {
     "type": "git",
-    "url": "https://github.com/craftkal/tool-box.git"
+    "url": "https://github.com/thewoldaa/tool-box.git"
   },
-  "homepage": "https://github.com/craftkal/tool-box#readme",
-  "bugs": "https://github.com/craftkal/tool-box/issues",
+  "homepage": "https://github.com/thewoldaa/tool-box#readme",
+  "bugs": "https://github.com/thewoldaa/tool-box/issues",
   "bin": {
-    "craftkal-tool": "./bin/craftkal-tool.js",
-    "craftkal-toolbox": "./bin/craftkal-tool.js",
-    "tool-box": "./bin/craftkal-tool.js"
+    "thewoldaa-tool": "./bin/thewoldaa-tool.js",
+    "thewoldaa-toolbox": "./bin/thewoldaa-tool.js",
+    "tool-box": "./bin/thewoldaa-tool.js",
+    "craftkal-tool": "./bin/thewoldaa-tool.js",
+    "craftkal-toolbox": "./bin/thewoldaa-tool.js"
   },
   "files": [
     "bin/",
@@ -29,11 +31,11 @@
   },
   "scripts": {
     "postinstall": "node hooks/postinstall.js",
-    "start": "node bin/craftkal-tool.js",
-    "dev": "node bin/craftkal-tool.js --help",
+    "start": "node bin/thewoldaa-tool.js",
+    "dev": "node bin/thewoldaa-tool.js --help",
     "build": "echo \"no build step — pure JS\"",
     "test": "node --test",
-    "doctor": "node bin/craftkal-tool.js doctor",
+    "doctor": "node bin/thewoldaa-tool.js doctor",
     "prepublishOnly": "node hooks/prepublish.js"
   },
   "dependencies": {
